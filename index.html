@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Application</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <h2>MyBlog App</h2>
+        <nav>
+            <a onclick="showPage('home')">Home</a>
+            <a onclick="showPage('login')">Login</a>
+            <a onclick="showPage('register')">Register</a>
+            <a onclick="showPage('dashboard')">Dashboard</a>
+        </nav>
+    </header>
+
+    <!-- 1. HOME PAGE -->
+    <div id="home" class="container">
+        <h1>Recent Blog Posts</h1>
+        <div id="posts-container">
+            <div class="post">
+                <h3>Getting Started with Frontend Development</h3>
+                <p>Frontend development is exciting! Learn HTML, CSS, and JavaScript to build amazing responsive websites...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. LOGIN PAGE -->
+    <div id="login" class="container hidden">
+        <h1>Login</h1>
+        <form onsubmit="event.preventDefault(); showPage('dashboard');">
+            <label>Email</label>
+            <input type="email" placeholder="Enter your email" required>
+            
+            <label>Password</label>
+            <input type="password" placeholder="Enter your password" required>
+            
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <!-- 3. REGISTER PAGE -->
+    <div id="register" class="container hidden">
+        <h1>Register</h1>
+        <form onsubmit="event.preventDefault(); alert('Registration successful! Please login.'); showPage('login');">
+            <label>Full Name</label>
+            <input type="text" placeholder="Enter your full name" required>
+
+            <label>Email</label>
+            <input type="email" placeholder="Enter your email" required>
+            
+            <label>Password</label>
+            <input type="password" placeholder="Create a password" required>
+            
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+
+    <!-- 4. DASHBOARD PAGE -->
+    <div id="dashboard" class="container hidden">
+        <h1>User Dashboard</h1>
+        <p>Welcome back! Manage your blog posts here.</p>
+        <br>
+        <button onclick="showPage('create-blog')">Create New Blog Post</button>
+        <br><br>
+        <button style="background: #dc3545;" onclick="showPage('home')">Logout</button>
+    </div>
+
+    <!-- 5. CREATE BLOG PAGE -->
+    <div id="create-blog" class="container hidden">
+        <h1>Create a New Blog Post</h1>
+        <form onsubmit="addBlogPost(event)">
+            <label>Blog Title</label>
+            <input type="text" id="blog-title" placeholder="Enter post title" required>
+            
+            <label>Content</label>
+            <textarea id="blog-content" rows="6" placeholder="Write your blog content here..." required></textarea>
+            
+            <button type="submit">Publish Post</button>
+        </form>
+    </div>
+
+    <!-- JavaScript to switch pages and handle new blogs -->
+    <script>
+        function showPage(pageId) {
+            // Hide all pages
+            document.getElementById('home').classList.add('hidden');
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('register').classList.add('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('create-blog').classList.add('hidden');
+
+            // Show the requested page
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function addBlogPost(event) {
+            event.preventDefault();
+            const title = document.getElementById('blog-title').value;
+            const content = document.getElementById('blog-content').value;
+
+            const postsContainer = document.getElementById('posts-container');
+            const newPost = document.createElement('div');
+            newPost.classList.add('post');
+            newPost.innerHTML = `<h3>${title}</h3><p>${content}</p>`;
+            
+            postsContainer.prepend(newPost);
+
+            // Clear form and go back to home
+            document.getElementById('blog-title').value = '';
+            document.getElementById('blog-content').value = '';
+            showPage('home');
+        }
+    </script>
+</body>
+</html>
