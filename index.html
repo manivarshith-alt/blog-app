@@ -4,118 +4,322 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog Application</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        nav a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        main {
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .view {
+            display: none;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .blog-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .blog-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Header Navigation -->
     <header>
-        <h2>MyBlog App</h2>
+        <h1 onclick="switchView('home')">Blog Application</h1>
         <nav>
-            <a onclick="showPage('home')">Home</a>
-            <a onclick="showPage('login')">Login</a>
-            <a onclick="showPage('register')">Register</a>
-            <a onclick="showPage('dashboard')">Dashboard</a>
+            <a onclick="switchView('home')">Home</a>
+            <a onclick="switchView('login')">Login</a>
+            <a onclick="switchView('register')">Register</a>
+            <a onclick="switchView('dashboard')">Dashboard</a>
+            <a onclick="switchView('create')">Create Blog</a>
         </nav>
     </header>
 
-    <!-- 1. HOME PAGE -->
-    <div id="home" class="container">
-        <h1>Recent Blog Posts</h1>
-        <div id="posts-container">
-            <div class="post">
-                <h3>Getting Started with Frontend Development</h3>
-                <p>Frontend development is exciting! Learn HTML, CSS, and JavaScript to build amazing responsive websites...</p>
+    <main>
+        <!-- HOME VIEW -->
+        <section id="home" class="view active">
+            <h2>Recent Blog Posts</h2>
+            <div id="blogsContainer">
+                <p>Loading blogs from backend...</p>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- 2. LOGIN PAGE -->
-    <div id="login" class="container hidden">
-        <h1>Login</h1>
-        <form onsubmit="event.preventDefault(); showPage('dashboard');">
-            <label>Email</label>
-            <input type="email" placeholder="Enter your email" required>
-            
-            <label>Password</label>
-            <input type="password" placeholder="Enter your password" required>
-            
-            <button type="submit">Login</button>
-        </form>
-    </div>
+        <!-- LOGIN VIEW -->
+        <section id="login" class="view">
+            <h2>Login to Your Account</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </section>
 
-    <!-- 3. REGISTER PAGE -->
-    <div id="register" class="container hidden">
-        <h1>Register</h1>
-        <form onsubmit="event.preventDefault(); alert('Registration successful! Please login.'); showPage('login');">
-            <label>Full Name</label>
-            <input type="text" placeholder="Enter your full name" required>
+        <!-- REGISTER VIEW -->
+        <section id="register" class="view">
+            <h2>Create an Account</h2>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="regName">Full Name</label>
+                    <input type="text" id="regName" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" required>
+                </div>
+                <button type="submit">Register</button>
+            </form>
+        </section>
 
-            <label>Email</label>
-            <input type="email" placeholder="Enter your email" required>
-            
-            <label>Password</label>
-            <input type="password" placeholder="Create a password" required>
-            
-            <button type="submit">Sign Up</button>
-        </form>
-    </div>
+        <!-- DASHBOARD VIEW -->
+        <section id="dashboard" class="view">
+            <h2>User Dashboard</h2>
+            <p id="welcomeMsg">Welcome to your dashboard! Please login to view your profile details.</p>
+        </section>
 
-    <!-- 4. DASHBOARD PAGE -->
-    <div id="dashboard" class="container hidden">
-        <h1>User Dashboard</h1>
-        <p>Welcome back! Manage your blog posts here.</p>
-        <br>
-        <button onclick="showPage('create-blog')">Create New Blog Post</button>
-        <br><br>
-        <button style="background: #dc3545;" onclick="showPage('home')">Logout</button>
-    </div>
+        <!-- CREATE BLOG VIEW -->
+        <section id="create" class="view">
+            <h2>Create a New Blog Post</h2>
+            <form onsubmit="handleCreateBlog(event)">
+                <div class="form-group">
+                    <label for="blogTitle">Blog Title</label>
+                    <input type="text" id="blogTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="blogContent">Content</label>
+                    <textarea id="blogContent" required></textarea>
+                </div>
+                <button type="submit">Publish Blog</button>
+            </form>
+        </section>
+    </main>
 
-    <!-- 5. CREATE BLOG PAGE -->
-    <div id="create-blog" class="container hidden">
-        <h1>Create a New Blog Post</h1>
-        <form onsubmit="addBlogPost(event)">
-            <label>Blog Title</label>
-            <input type="text" id="blog-title" placeholder="Enter post title" required>
-            
-            <label>Content</label>
-            <textarea id="blog-content" rows="6" placeholder="Write your blog content here..." required></textarea>
-            
-            <button type="submit">Publish Post</button>
-        </form>
-    </div>
-
-    <!-- JavaScript to switch pages and handle new blogs -->
     <script>
-        function showPage(pageId) {
-            // Hide all pages
-            document.getElementById('home').classList.add('hidden');
-            document.getElementById('login').classList.add('hidden');
-            document.getElementById('register').classList.add('hidden');
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('create-blog').classList.add('hidden');
-
-            // Show the requested page
-            document.getElementById(pageId).classList.remove('hidden');
+        // SPA View Switcher
+        function switchView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            if (viewId === 'home') {
+                fetchBlogs();
+            }
         }
 
-        function addBlogPost(event) {
+        // 1. Register User API Call
+        async function handleRegister(event) {
             event.preventDefault();
-            const title = document.getElementById('blog-title').value;
-            const content = document.getElementById('blog-content').value;
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
 
-            const postsContainer = document.getElementById('posts-container');
-            const newPost = document.createElement('div');
-            newPost.classList.add('post');
-            newPost.innerHTML = `<h3>${title}</h3><p>${content}</p>`;
-            
-            postsContainer.prepend(newPost);
-
-            // Clear form and go back to home
-            document.getElementById('blog-title').value = '';
-            document.getElementById('blog-content').value = '';
-            showPage('home');
+            try {
+                const response = await fetch('http://localhost:5000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await response.json();
+                alert(data.message);
+                if (response.ok) switchView('login');
+            } catch (err) {
+                alert('Error connecting to backend server!');
+            }
         }
+
+        // 2. Login User API Call
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                alert(data.message);
+                if (response.ok) {
+                    document.getElementById('welcomeMsg').innerText = `Welcome back, ${data.name}!`;
+                    switchView('dashboard');
+                }
+            } catch (err) {
+                alert('Error connecting to backend server!');
+            }
+        }
+
+        // 3. Create Blog API Call
+        async function handleCreateBlog(event) {
+            event.preventDefault();
+            const title = document.getElementById('blogTitle').value;
+            const content = document.getElementById('blogContent').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/blogs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content })
+                });
+                const data = await response.json();
+                alert(data.message);
+                if (response.ok) {
+                    document.getElementById('blogTitle').value = '';
+                    document.getElementById('blogContent').value = '';
+                    switchView('home');
+                }
+            } catch (err) {
+                alert('Error connecting to backend server!');
+            }
+        }
+
+        // 4. Fetch All Blogs API Call
+        async function fetchBlogs() {
+            const container = document.getElementById('blogsContainer');
+            try {
+                const response = await fetch('http://localhost:5000/api/blogs');
+                const blogs = await response.json();
+                
+                if (blogs.length === 0) {
+                    container.innerHTML = '<p>No blog posts found yet. Be the first to create one!</p>';
+                    return;
+                }
+
+                container.innerHTML = blogs.map(blog => `
+                    <div class="blog-card">
+                        <h3>${blog.title}</h3>
+                        <p>${blog.content}</p>
+                    </div>
+                `).join('');
+            } catch (err) {
+                container.innerHTML = '<p style="color: red;">Could not load blogs. Make sure your Node.js backend server is running.</p>';
+            }
+        }
+
+        // Load blogs on initial page load
+        window.onload = fetchBlogs;
     </script>
 </body>
 </html>
