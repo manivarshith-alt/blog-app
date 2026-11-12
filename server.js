@@ -3,14 +3,18 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
+// Serve static files from the current directory (serves index.html automatically)
+app.use(express.static(__dirname));
+
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/blog-app';
-const JWT_SECRET = 'your_jwt_super_secret_key'; // In production, use environment variables
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_super_secret_key';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log('Connected to MongoDB database successfully!'))
@@ -37,7 +41,7 @@ const Blog = mongoose.model('Blog', blogSchema);
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    if (!authHeader) return res.status(403) .json({ message: 'No token provided!' });
+    if (!authHeader) return res.status(403).json({ message: 'No token provided!' });
     
     const token = authHeader.split(' ')[1];
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
@@ -50,7 +54,6 @@ const verifyToken = (req, res, next) => {
 
 // --- AUTH ROUTES ---
 
-// Register
 app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -67,7 +70,6 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// Login
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -84,7 +86,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Get User Profile
 app.get('/api/profile', verifyToken, async (req, res) => {
     try {
         const user = await User.findById(req.userId).select('-password');
@@ -97,7 +98,6 @@ app.get('/api/profile', verifyToken, async (req, res) => {
 
 // --- BLOG ROUTES ---
 
-// Create Blog (Protected)
 app.post('/api/blogs', verifyToken, async (req, res) => {
     try {
         const { title, content } = req.body;
@@ -114,7 +114,6 @@ app.post('/api/blogs', verifyToken, async (req, res) => {
     }
 });
 
-// Get All Blogs (Public)
 app.get('/api/blogs', async (req, res) => {
     try {
         const blogs = await Blog.find().sort({ createdAt: -1 });
@@ -124,7 +123,6 @@ app.get('/api/blogs', async (req, res) => {
     }
 });
 
-// Get Logged-in User's Blogs (Protected Dashboard Blogs)
 app.get('/api/my-blogs', verifyToken, async (req, res) => {
     try {
         const blogs = await Blog.find({ author: req.userId }).sort({ createdAt: -1 });
@@ -134,7 +132,6 @@ app.get('/api/my-blogs', verifyToken, async (req, res) => {
     }
 });
 
-// Get Single Blog Detail
 app.get('/api/blogs/:id', async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
@@ -145,7 +142,6 @@ app.get('/api/blogs/:id', async (req, res) => {
     }
 });
 
-// Update Blog (Protected - Only Author)
 app.put('/api/blogs/:id', verifyToken, async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
@@ -164,7 +160,6 @@ app.put('/api/blogs/:id', verifyToken, async (req, res) => {
     }
 });
 
-// Delete Blog (Protected - Only Author)
 app.delete('/api/blogs/:id', verifyToken, async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
@@ -180,7 +175,12 @@ app.delete('/api/blogs/:id', verifyToken, async (req, res) => {
     }
 });
 
-const PORT = 5000;
+// Fallback route to serve index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
