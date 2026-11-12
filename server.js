@@ -8,15 +8,14 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// 1. Connect to MongoDB (Using a local MongoDB URI or MongoDB Atlas URI)
-// Replace with your MongoDB connection string if using Atlas
+// Connect to MongoDB
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/blog-app';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log('Connected to MongoDB database successfully!'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-// 2. Define Mongoose Schemas & Models
+// Define Mongoose Schemas & Models
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -32,7 +31,7 @@ const blogSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 const Blog = mongoose.model('Blog', blogSchema);
 
-// 3. API Routes
+// API Routes
 
 // Register User
 app.post('/api/register', async (req, res) => {
@@ -65,7 +64,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Create Blog
+// Create Blog (C)
 app.post('/api/blogs', async (req, res) => {
     try {
         const { title, content } = req.body;
@@ -77,7 +76,7 @@ app.post('/api/blogs', async (req, res) => {
     }
 });
 
-// Get All Blogs
+// Get All Blogs (R)
 app.get('/api/blogs', async (req, res) => {
     try {
         const blogs = await Blog.find().sort({ createdAt: -1 });
@@ -87,7 +86,7 @@ app.get('/api/blogs', async (req, res) => {
     }
 });
 
-// Get Single Blog Details by ID
+// Get Single Blog Details by ID (R)
 app.get('/api/blogs/:id', async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
@@ -97,6 +96,37 @@ app.get('/api/blogs/:id', async (req, res) => {
         res.json(blog);
     } catch (err) {
         res.status(500).json({ message: 'Error fetching blog details.' });
+    }
+});
+
+// Update Blog by ID (U)
+app.put('/api/blogs/:id', async (req, res) => {
+    try {
+        const { title, content } = req.body;
+        const updatedBlog = await Blog.findByIdAndUpdate(
+            req.params.id,
+            { title, content },
+            { new: true }
+        );
+        if (!updatedBlog) {
+            return res.status(404).json({ message: 'Blog not found!' });
+        }
+        res.json({ message: 'Blog updated successfully!', blog: updatedBlog });
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating blog.' });
+    }
+});
+
+// Delete Blog by ID (D)
+app.delete('/api/blogs/:id', async (req, res) => {
+    try {
+        const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
+        if (!deletedBlog) {
+            return res.status(404).json({ message: 'Blog not found!' });
+        }
+        res.json({ message: 'Blog deleted successfully!' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error deleting blog.' });
     }
 });
 
