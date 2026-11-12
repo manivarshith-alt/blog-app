@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Application</title>
+    <title>Blog Application - Module 03</title>
     <style>
         :root {
             --primary-color: #2563eb;
@@ -128,11 +128,26 @@
             border-radius: 6px;
             border: 1px solid var(--border-color);
             margin-bottom: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
         .blog-card h3 {
             color: var(--primary-color);
             margin-bottom: 0.5rem;
+        }
+
+        .back-btn {
+            background-color: #64748b;
+            margin-bottom: 1rem;
+        }
+        .back-btn:hover {
+            background-color: #475569;
         }
     </style>
 </head>
@@ -152,10 +167,18 @@
     <main>
         <!-- HOME VIEW -->
         <section id="home" class="view active">
-            <h2>Recent Blog Posts</h2>
+            <h2>Recent Blog Posts (from Database)</h2>
             <div id="blogsContainer">
-                <p>Loading blogs from backend...</p>
+                <p>Loading blogs from database...</p>
             </div>
+        </section>
+
+        <!-- SINGLE BLOG DETAIL VIEW -->
+        <section id="detail" class="view">
+            <button class="back-btn" onclick="switchView('home')">&larr; Back to Home</button>
+            <h2 id="detailTitle">Blog Title</h2>
+            <p id="detailDate" style="color: #64748b; margin-bottom: 1rem; font-size: 0.9rem;"></p>
+            <div id="detailContent" style="line-height: 1.6;"></div>
         </section>
 
         <!-- LOGIN VIEW -->
@@ -295,7 +318,7 @@
             }
         }
 
-        // 4. Fetch All Blogs API Call
+        // 4. Fetch All Blogs from DB
         async function fetchBlogs() {
             const container = document.getElementById('blogsContainer');
             try {
@@ -303,18 +326,38 @@
                 const blogs = await response.json();
                 
                 if (blogs.length === 0) {
-                    container.innerHTML = '<p>No blog posts found yet. Be the first to create one!</p>';
+                    container.innerHTML = '<p>No blog posts found in the database yet. Be the first to create one!</p>';
                     return;
                 }
 
                 container.innerHTML = blogs.map(blog => `
-                    <div class="blog-card">
+                    <div class="blog-card" onclick="fetchBlogDetail('${blog._id}')">
                         <h3>${blog.title}</h3>
-                        <p>${blog.content}</p>
+                        <p>${blog.content.substring(0, 100)}...</p>
+                        <small style="color: #64748b; display:inline-block; margin-top:0.5rem;">Click to read more &rarr;</small>
                     </div>
                 `).join('');
             } catch (err) {
-                container.innerHTML = '<p style="color: red;">Could not load blogs. Make sure your Node.js backend server is running.</p>';
+                container.innerHTML = '<p style="color: red;">Could not load blogs. Make sure your MongoDB and Node.js server are running.</p>';
+            }
+        }
+
+        // 5. Fetch Single Blog Detail by ID
+        async function fetchBlogDetail(blogId) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/blogs/${blogId}`);
+                const blog = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('detailTitle').innerText = blog.title;
+                    document.getElementById('detailDate').innerText = `Published on: ${new Date(blog.createdAt).toLocaleDateString()}`;
+                    document.getElementById('detailContent').innerText = blog.content;
+                    switchView('detail');
+                } else {
+                    alert(blog.message);
+                }
+            } catch (err) {
+                alert('Error fetching blog details.');
             }
         }
 
