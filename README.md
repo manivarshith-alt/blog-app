@@ -19,4 +19,4 @@ A complete, responsive Full Stack Blog Application built with **HTML5, CSS3, Jav
 ## Local Setup
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/manivarshith-alt/blog-app.git](https://github.com/manivarshith-alt/blog-app.git)
+   git clone https://github.com/manivarshith-alt/blog-app.git
