@@ -4,6 +4,7 @@ A complete, responsive Full Stack Blog Application built with **HTML5, CSS3, Jav
 
 ## Features
 - **User Authentication:** Secure registration and login using JWT (JSON Web Tokens) and bcrypt password hashing.
+- **Live Demo:** [https://blog-app-zqun.onrender.com](https://blog-app-zqun.onrender.com)
 - **Full CRUD Operations:** Create, Read, Update, and Delete blog posts in real-time.
 - **Role/Author Authorization:** Only the original author of a post can edit or delete it.
 - **Personal Dashboard:** Protected dashboard displaying user profile info and user-specific published blogs.
